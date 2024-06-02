@@ -47,10 +47,10 @@ function Footer() {
                                     <h4 className="widget-title pb-2">Thông Tin Liên Lạc</h4>
                                     <ul className="menu-list list-unstyled">
                                         <li className="menu-item pb-2">
-                                            <a href="#">Xuân Phương, Nam Từ Liêm, Hà Nội</a>
+                                            <a href="#">Sóc Sơn, Hà Nội, Việt Nam</a>
                                         </li>
                                         <li className="menu-item pb-2">
-                                            <a href="#">+84 33448809</a>
+                                            <a href="#">+84 359 985 876</a>
                                         </li>
                                         <li className="menu-item pb-2">
                                             <a href="mailto:">khaipru@gmail.com</a>

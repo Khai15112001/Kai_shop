@@ -9,7 +9,7 @@ function MiniCart({ product }) {
             minimumFractionDigits: 0, 
         });
     
-        return formatter.format(value).replace('₫', '$');
+        return formatter.format(value).replace('₫', 'VNĐ');
     }
 
     return (

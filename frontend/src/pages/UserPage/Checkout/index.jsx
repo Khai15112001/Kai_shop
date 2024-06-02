@@ -3,10 +3,12 @@ import {useNavigate} from "react-router-dom";
 import orderApi from "../../../apis/orderApi";
 import OrderSuccessPopup from './OrderSuccessPopup';
 import { colors } from '@mui/material';
+import OrderFailPopup from "./OrderFailPopup";
 
 
 function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
     const [orderSuccess, setOrderSuccess] = useState(false);
+    const [orderFail, setOrderFail] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
         if (!isLogged) {
@@ -14,22 +16,28 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
         }
     }, [isLogged, navigate]);
 
-    const [total, setTotal] = useState((() => {
-        let temp_total = 0;
-        cartItems.forEach(item => {
-            temp_total += item.price * item.quantity;
-        });
-        return temp_total;
-    })());
+    const [total, setTotal] = useState(() => {
+        if (Array.isArray(cartItems) && cartItems.length > 0) {
+            let temp_total = 0;
+            cartItems.forEach(item => {
+                temp_total += item.price * item.quantity;
+            });
+            return temp_total;
+        } else {
+            return 0;
+        }
+    });
+
     const [fullname, setFullname] = useState("");
     const [address, setAddress] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
+    const [payment, setPayment] = useState("");
 
         const handleOrder = (event) => {
             event.preventDefault();
 
-            if (!fullname || !address || !phone || !email) {
+            if (!fullname || !address || !phone || !email || !payment) {
                 alert('Vui lòng điền vào tất cả các trường bắt buộc.');
                 return;
         }
@@ -42,7 +50,8 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
             address: address,
             phone: phone,
             email: email,
-            total_amount: total
+            total_amount: total,
+            payment: payment
         };
 
         const products = cartItems.map(item => ({
@@ -66,12 +75,14 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
             setCartItems([]);
             setOrderSuccess(true);
         }).catch((error) => {
+            setOrderFail(true);
             console.log(error);
         });
     };
 
     const handleClosePopup = () => {
         setOrderSuccess(false);
+        setOrderFail(false);
     };
 
     function formatVND(value) {
@@ -84,6 +95,21 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
         return formatter.format(value).replace('₫', 'VNĐ');
     }
 
+    const renderQRCode = () => {
+        const qrCodeStyle = {
+            maxWidth: '200px',
+            height: 'auto'
+        };
+
+        if (payment === "bankTransfer") {
+            return <img src={`${process.env.PUBLIC_URL}/images/qr/bank.jpg`} alt="QR Code for Bank Transfer" style={qrCodeStyle} />;
+        } else if (payment === "momo") {
+            return <img src={`${process.env.PUBLIC_URL}/images/qr/momo.jpg`} alt="QR Code for Momo Payment" style={qrCodeStyle} />;
+        } else {
+            return null;
+        }
+    };
+
     return (
         <section className="shopify-cart checkout-wrap padding-medium">
             <div className="container">
@@ -94,7 +120,7 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                             <div className="billing-details">
 
                                 <div className="py-3">
-                                    <label htmlFor="lname">Tên <span style={{color:'red'}}>*</span></label>
+                                    <label htmlFor="lname">Tên <span style={{color: 'red'}}>*</span></label>
                                     <input type="text"
                                            id="fullname"
                                            name="fullname"
@@ -105,7 +131,7 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                                 </div>
 
                                 <div className="py-3">
-                                    <label htmlFor="address">Địa chỉ <span style={{color:'red'}}>*</span></label>
+                                    <label htmlFor="address">Địa chỉ <span style={{color: 'red'}}>*</span></label>
                                     <input type="text"
                                            id="address"
                                            name="address"
@@ -116,7 +142,7 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                                 </div>
 
                                 <div className="py-3">
-                                    <label htmlFor="email">Số điện thoại <span style={{color:'red'}}>*</span></label>
+                                    <label htmlFor="email">Số điện thoại <span style={{color: 'red'}}>*</span></label>
                                     <input type="text"
                                            id="phone"
                                            name="phone"
@@ -127,7 +153,7 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                                 </div>
 
                                 <div className="py-3">
-                                    <label htmlFor="email">Email <span style={{color:'red'}}>*</span></label>
+                                    <label htmlFor="email">Email <span style={{color: 'red'}}>*</span></label>
                                     <input type="text"
                                            id="email"
                                            name="email"
@@ -135,6 +161,24 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                                            value={email}
                                            onChange={(e) => setEmail(e.target.value)}
                                            required/>
+                                </div>
+                                <div className="py-3">
+                                    <label htmlFor="payment">Phương thức thanh toán <span
+                                        style={{color: 'red'}}>*</span></label>
+                                    <select
+                                        id="payment"
+                                        name="payment"
+                                        className="w-100"
+                                        onChange={(e) => {
+                                            setPayment(e.target.value);
+                                            console.log(payment)
+                                        }}
+                                        required
+                                    >
+                                        <option value="cash">Thanh toán khi nhận hàng</option>
+                                        <option value="bankTransfer">Chuyển khoản ngân hàng</option>
+                                        <option value="momo">Thanh toán Momo</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -158,9 +202,13 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                                     </table>
                                 </div>
                             </div>
+                            <div className="mt-3">
+                                {renderQRCode()}
+                            </div>
                             <div className="your-order mt-5">
                                 <div className="total-price">
-                                    <button type="submit" name="submit" className="btn btn-dark w-100" onClick={handleOrder}>
+                                <button type="submit" name="submit" className="btn btn-dark w-100"
+                                            onClick={handleOrder}>
                                         Đặt hàng
                                     </button>
                                 </div>
@@ -169,7 +217,8 @@ function Checkout({isLogged, setIsLogged, cartItems, setCartItems}) {
                     </div>
                 </form>
             </div>
-            <OrderSuccessPopup open={orderSuccess} onClose={handleClosePopup} />
+            <OrderSuccessPopup open={orderSuccess} onClose={handleClosePopup}/>
+            <OrderFailPopup open={orderFail} onClose={handleClosePopup}/>
         </section>
     );
 }

@@ -25,7 +25,7 @@ const ProductForm = ({
             price: number().required('Giá sản phẩm là bắt buộc'),
             quantity: number().required('Số lượng sản phẩm là bắt buộc'),
             status: string().required('Trạng thái sản phẩm là bắt buộc'),
-            author: string().required('Thương Hiệu sản phẩm là bắt buộc'),
+            author: string().required('Tác giả sản phẩm là bắt buộc'),
             rating: number().required('Đánh giá sản phẩm là bắt buộc'),
         };
 
@@ -40,7 +40,7 @@ const ProductForm = ({
         price: number().required('Giá sản phẩm là bắt buộc'),
         quantity: number().required('Số lượng sản phẩm là bắt buộc'),
         status: string().required('Trạng thái sản phẩm là bắt buộc'),
-        author: string().required('Thương Hiệu sản phẩm là bắt buộc'),
+        author: string().required('Tác giả sản phẩm là bắt buộc'),
         rating: number().required('Đánh giá sản phẩm là bắt buộc'),
     };*/
 
@@ -56,6 +56,7 @@ const ProductForm = ({
         author: '',
         rating: 0,
         category_id: categories[0]?.id ?? 1,
+        show_on_homepage: 0,
     };
 
     const formik = useFormik({
@@ -91,6 +92,8 @@ const ProductForm = ({
             formik.setFieldValue('author', editValues.author);
             formik.setFieldValue('rating', editValues.rating);
             formik.setFieldValue('category_id', editValues.category_id);
+            formik.setFieldValue('show_on_homepage', editValues.show_on_homepage);
+            console.log(editValues);
         } else {
             setImageTmp("");
         }
@@ -155,6 +158,17 @@ const ProductForm = ({
                 onChangeField={formik.handleChange}
                 isRequired={true}
             />
+            <FieldSelect
+                label='Hiển thị ở Slider'
+                name='show_on_homepage'
+                dataSet={[
+                    {label: 'Enabled', value: 1},
+                    {label: 'Disabled', value: 0},
+                ]}
+                value={formik.values.show_on_homepage}
+                onChangeField={formik.handleChange}
+                isRequired={true}
+            />
                 <FieldInputFile
                     label='Image'
                     name='image'
@@ -189,7 +203,7 @@ const ProductForm = ({
             />*/}
 
             <FieldInput
-                label='Thương Hiệu'
+                label='Tác giả'
                 name='author'
                 value={formik.values.author}
                 onChangeField={formik.handleChange}

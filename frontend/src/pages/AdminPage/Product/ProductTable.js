@@ -28,7 +28,7 @@ const ProductTable = ({ rows, onDeleteProduct, onEdit }) => {
     },
     {
       field: 'author',
-      headerName: 'Thương Hiệu',
+      headerName: 'Tác Giả',
       flex: 1,
       headerAlign: 'center',
       align: 'center',
